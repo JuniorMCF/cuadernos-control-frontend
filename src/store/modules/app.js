@@ -12,7 +12,7 @@ const state = () => ({
     actual_page: "",
     drawer:true,
     active_tab:'profile',
-    active_tab_child:'',
+    active_tab_child:false,
     items_group: [
         {
             route: "/admin/profile",
@@ -30,7 +30,7 @@ const state = () => ({
             subitems: [
                 {
                     route: "/admin/enterprise",
-                    active: 'e_config',
+                    active: 'enterprise',
                     title: "Configuración",
                     subitems: [
                     ],
@@ -38,7 +38,7 @@ const state = () => ({
                 },
                 {
                     route: "/admin/products",
-                    active: 'e_products',
+                    active: 'enterprise',
                     title: "Productos",
                     subitems: [
                     ],
@@ -46,7 +46,7 @@ const state = () => ({
                 },
                 {
                     route: "/admin/services",
-                    active: 'e_services',
+                    active: 'enterprise',
                     title: "Servicios",
                     subitems: [
                     ],
@@ -54,7 +54,7 @@ const state = () => ({
                 },
                 {
                     route: "/admin/clients",
-                    active: 'e_clients',
+                    active: 'enterprise',
                     title: "Clientes",
                     subitems: [
                     ],

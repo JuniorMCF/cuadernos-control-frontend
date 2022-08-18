@@ -1,5 +1,3 @@
-// initial state
-import axios from 'axios'
 
 const state = () => ({
     token: '',
@@ -42,31 +40,18 @@ const getters = {
 // actions
 
 const actions = {
-    logout(context, payload) {
-
-        return new Promise((resolve, reject) => {
-
-            const url_base = 'http://127.0.0.1:8000/api/'
-
-            axios({
-                method: 'post',
-                url: url_base + "logout",
-                headers: { Authorization: "Bearer " + payload.token },
-
-            }).then(res => {
-
-                //this.axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + res.data.access_token
-                context.commit('logout')
-                resolve(res.data)
-            }).catch(err => {
-                //context.commit('logout')
-                reject(err)
-            })
-        })
+    logout(context) {
+        //this.axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + res.data.access_token
+        context.commit('logout')
+              
     },
     setUser(context, payload) {
         //console.log(payload)
-        context.commit('auth', payload)
+    
+        return new Promise((resolve)=>{
+            context.commit('auth', payload)
+            resolve(true)
+        })
     },
     setUserProfile(context,payload){
         context.commit('user',payload)

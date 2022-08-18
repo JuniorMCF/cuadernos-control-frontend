@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12 ">
       <v-row>
         <v-col>
           <p class="font-weight-bold text-h5 my-0">Tus clientes</p>
@@ -68,12 +68,13 @@ export default {
       clients: [],
       headers: [
         {
-          text: "Nombres",
+          text: "Cliente",
           align: "start",
           sortable: false,
           value: "first_name",
         },
-        { text: "Apellidos", value: "last_name", align: "left" },
+        /*{ text: "Apellidos", value: "last_name", align: "left" },*/
+        { text: "Descripción", value: "description", align: "left" },
         { text: "Email", value: "contact_email", align: "left" },
         { text: "Celular 1", value: "phone_number_one", align: "left" },
         { text: "Celular 2", value: "phone_number_two", align: "left" },
@@ -111,7 +112,7 @@ export default {
       const client = [
         {
           type: "input",
-          label: "Nombres",
+          label: "Cliente",
           key: "first_name",
           model: "",
 
@@ -119,14 +120,15 @@ export default {
           hint: "*obligatorio",
         },
 
-        {
+        /*{
           type: "input",
           label: "Apellidos",
           key: "last_name",
           model: "",
 
           type_input: "text",
-        },
+        },*/
+        
         {
           type: "input",
           label: "DNI o RUC",
@@ -134,6 +136,13 @@ export default {
           model: "",
           type_input: "text",
           hint: "*obligatorio",
+        },
+         {
+          type: "input",
+          label: "Descripción del cliente",
+          key: "description",
+          model: "",
+          type_input: "text",
         },
         {
           type: "input",

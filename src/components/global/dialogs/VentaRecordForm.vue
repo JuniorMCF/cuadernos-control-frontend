@@ -45,7 +45,7 @@
 
           <v-row v-if="type_client == 'cliente'">
             <v-col class="col-12 col-md-6">
-              <v-select
+              <v-autocomplete
                 dense
                 outlined
                 :items="clients"
@@ -54,10 +54,24 @@
                 item-text="first_name"
                 label="Seleccione un cliente"
                 v-on:change="changeClient"
+                :filter="customFilter"
                 hide-details
                 return-object
-                autocomplete
-              />
+              >
+                <template slot="selection" slot-scope="{ item }">
+                  <span class="text-truncate">
+                    {{ item.first_name }}
+                  </span>
+                </template>
+                <template slot="item" slot-scope="{ item }">
+                  <div class="d-block">
+                    <div class="pa-0 ma-0 text-caption">
+                      {{ item.first_name }}
+                    </div>
+                    <div class="pa-0 ma-0 text-caption">{{ item.dni }}</div>
+                  </div>
+                </template>
+              </v-autocomplete>
             </v-col>
             <v-col class="col-12 col-md-6">
               <v-text-field
@@ -76,7 +90,7 @@
               <v-text-field
                 dense
                 outlined
-                label="Nombres del cliente"
+                label="Cliente"
                 :value="client.first_name == null ? '' : client.first_name"
                 v-model="client.first_name"
                 hide-details
@@ -92,11 +106,21 @@
                 hide-details
               />
             </v-col>
+            <v-col class="col-12">
+              <v-text-field
+                dense
+                outlined
+                label="Descripción del cliente"
+                :value="client.description == null ? '' : client.description"
+                v-model="client.description"
+                hide-details
+              />
+            </v-col>
           </v-row>
 
           <v-row align="center">
             <v-col class="col-12 col-md-6">
-              <v-select
+              <v-autocomplete
                 dense
                 outlined
                 :items="services"
@@ -107,7 +131,24 @@
                 label="Seleccione un servicio"
                 hide-details
                 return-object
-              />
+              >
+                <template slot="selection" slot-scope="{ item }">
+                  <span class="text-truncate">
+                    {{ item.name }}
+                  </span>
+                </template>
+                <template slot="item" slot-scope="{ item }">
+                  <span class="text-truncate" v-if="item.is_offer == 0">
+                    {{ item.name }}
+                  </span>
+                  <span class="text-truncate" v-else>
+                    {{ item.name }}
+                    <v-chip color="primary" class="text-caption" x-small
+                      >oferta</v-chip
+                    >
+                  </span>
+                </template>
+              </v-autocomplete>
             </v-col>
             <v-col class="col-4 col-md-2">
               <span>Cantidad: </span>
@@ -254,21 +295,30 @@ export default {
     changeService(service) {
       this.service = service;
       if (this.service.price != null) {
-        this.monto = this.service.is_offer == 1 ? this.service.price_offer*this.quantity : this.service.price*this.quantity;
+        this.monto =
+          this.service.is_offer == 1
+            ? this.service.price_offer * this.quantity
+            : this.service.price * this.quantity;
       }
     },
     plus() {
-        console.log(this.service)
+      console.log(this.service);
       this.quantity += 1;
       if (this.service.price != null) {
-        this.monto = this.service.is_offer == 1? this.service.price_offer * this.quantity: this.service.price * this.quantity;
+        this.monto =
+          this.service.is_offer == 1
+            ? this.service.price_offer * this.quantity
+            : this.service.price * this.quantity;
       }
     },
     minus() {
       if (this.quantity > 1) {
         this.quantity -= 1;
         if (this.service.price != null) {
-          this.monto = this.service.is_offer == 1 ? this.service.price_offer * this.quantity : this.service.price * this.quantity;
+          this.monto =
+            this.service.is_offer == 1
+              ? this.service.price_offer * this.quantity
+              : this.service.price * this.quantity;
         }
       }
     },
@@ -285,10 +335,11 @@ export default {
       data.append("user_id", this.user_id);
       data.append("client_id", this.client.id);
       data.append("first_name", this.client.first_name);
+      data.append("description", this.client.description);
       data.append("dni", this.client.dni);
       data.append("service_id", this.service.id);
       data.append("quantity", this.quantity);
-      data.append("amount",this.monto)
+      data.append("amount", this.monto);
       data.append("status", this.state);
 
       this.$axios
@@ -305,6 +356,15 @@ export default {
           this.dialog = false;
           console.log(err);
         });
+    },
+    customFilter(item, queryText) {
+      const textOne = item.first_name.toLowerCase();
+      const textTwo = item.dni.toLowerCase();
+      const searchText = queryText.toLowerCase();
+
+      return (
+        textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1
+      );
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12 ">
       <v-row>
         <v-col class="col-12 col-sm-8 col-md-8 col-lg-10">
           <p class="font-weight-bold text-h5 my-0">Tus estadísticas</p>

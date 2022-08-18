@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12 ">
       <v-row>
         <v-col>
           <p class="font-weight-bold text-h5 my-0">Perfil</p>
@@ -267,7 +267,7 @@ export default {
       console.log("change image");
     },
     openCamera() {
-      this.$refs.camera.open("Foto de perfil", "profile/update/photo",this.$store.getters["auth/getUserId"]).then(res=>{
+      this.$refs.camera.open("Cambiar foto de perfil", "profile/update/photo",this.$store.getters["auth/getUserId"]).then(res=>{
           if(res){
             this.getData()
           }
@@ -294,7 +294,7 @@ export default {
       return this.$store.state.app.pageTransition.duration;
     },
     user() {
-      return this.$store.getters["auth/getUser"];
+      return this.$store.state.auth.user == null ? {name:'',photo:null,email:''}: this.$store.state.auth.user
     },
   },
   components: { Loading, Camera },

@@ -6,17 +6,37 @@ Vue.config.productionTip = false
 
 import axios from 'axios'
 
+//const domain = "https://apicontrol.seeders.pe"
+
+const domain = "http://localhost:8000"
+
 const axiosConfig = {
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: domain + '/api/',
   timeout: 30000,
-  
+
 };
-Vue.prototype.$url_domain = 'http://localhost:8000'
+Vue.prototype.$url_domain = domain
 Vue.prototype.$axios = axios.create(axiosConfig)
 
 
+Vue.prototype.$axios.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  if (401 === error.response.status) {
+    window.location = '/login';
+    localStorage.clear();
+  } else {
+    return Promise.reject(error);
+  }
+});
+
 import VueToast from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
+
+import VueParticlesBg from "particles-bg-vue";
+ 
+Vue.use(VueParticlesBg);
+
 Vue.use(VueToast, {
   // One of the options
   position: 'bottom'

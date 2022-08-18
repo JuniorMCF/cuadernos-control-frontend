@@ -8,7 +8,8 @@
         <v-app-bar-nav-icon
           id="navbar_icon"
           color="black"
-          @click="openClose()"
+         
+          @click="drawer=!drawer"
         ></v-app-bar-nav-icon>
         <!--<v-toolbar-title class="black--text">{{ actualPage }}</v-toolbar-title>-->
         <v-spacer></v-spacer>
@@ -67,7 +68,7 @@
         </v-menu>
       </v-toolbar>
     </v-card>
-    <v-navigation-drawer absolute left class="black px-3 py-3" v-model="drawer">
+    <v-navigation-drawer disable-resize-watcher absolute left class="black px-3 py-3" v-model="drawer">
       <v-list dense class="py-0">
         <v-list-item-content class="black">
           <v-list-item-title class="title d-flex justify-center align-center">
@@ -87,7 +88,6 @@
           :key="item.title"
           active-class="grey darken-2 white--text"
           :value="active_tab === item.active ? true : false"
-          no-action
           :append-icon="item.subitems.length === 0 ? null : '$expand'"
           @click.prevent="goToRoute(item)"
         >
@@ -102,24 +102,21 @@
               ></v-list-item-title>
             </v-list-item-content>
           </template>
-         
+
           <v-list-item
-           dense
+            dense
             v-for="child in item.subitems"
             :key="child.title"
             @click.prevent="goToRoute(child)"
             :value="active_tab_child === child.active ? true : false"
             active-class="grey darken-2 white--text"
-            
           >
-           
-              <v-list-item-content class="rounded-0">
-                <v-list-item-title
-                  v-text="child.title"
-                  class="caption white--text"
-                ></v-list-item-title>
-              </v-list-item-content>
-            
+            <v-list-item-content class="rounded-0">
+              <v-list-item-title
+                v-text="child.title"
+                class="caption white--text"
+              ></v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
         </v-list-group>
       </v-list>
@@ -132,41 +129,40 @@ export default {
   name: "navbar-component",
   data: () => ({
     active: 0,
+    drawer: window.innerWidth < 1263 ? false : true,
   }),
   mounted() {
     this.onResize();
     window.addEventListener("resize", this.onResize);
 
-    if (window.innerWidth < 1263) {
-      //this.drawer = false;
-      this.$store.dispatch("app/setDrawer", false);
-    } else {
-      //this.drawer = true;
-      this.$store.dispatch("app/setDrawer", true);
-    }
+    
   },
   methods: {
     goToRoute(element) {
       if (element.subitems.length == 0) {
+        if (window.innerWidth < 1263) {
+          this.drawer = false;
+          //this.$store.dispatch("app/setDrawer", false);
+        } else {
+          this.drawer = true;
+          //this.$store.dispatch("app/setDrawer", true);
+        }
+
         /**action and change active */
         this.$router.push({ path: element.route }).catch(() => {});
-        if (window.innerWidth < 1263) {
-          //this.drawer = false;
-          this.$store.dispatch("app/setDrawer", false);
-        } else {
-          //this.drawer = true;
-          this.$store.dispatch("app/setDrawer", true);
-        }
-        this.$store.dispatch("app/setActiveTab", element);
         return;
       }
+
       this.$store.dispatch("app/setActiveTab", element);
+
       //console.log(element)
     },
+
     openClose() {
       let container_header = document.getElementById("container-header");
       let container_main = document.getElementById("container-main");
-      if (this.$store.getters["app/getDrawer"]) {
+      //this.$store.getters["app/getDrawer"]
+      if (this.drawer) {
         container_header.classList.remove("header-open");
         container_header.classList.add("header-close");
 
@@ -180,11 +176,9 @@ export default {
         container_main.classList.add("main-open");
       }
 
-      //this.drawer = !this.drawer;
-      this.$store.dispatch(
-        "app/setDrawer",
-        !this.$store.getters["app/getDrawer"]
-      );
+      this.drawer = !this.drawer
+
+      //this.$store.dispatch("app/setDrawer", !this.$store.getters["app/getDrawer"]);
     },
     getUserName(user) {
       return user.name;
@@ -199,7 +193,8 @@ export default {
         container_main.classList.remove("main-open");
         container_main.classList.add("main-close");
       } else {
-        if (this.$store.getters["app/getDrawer"]) {
+        //this.$store.getters["app/getDrawer"]
+        if (this.drawer) {
           container_header.classList.remove("header-close");
           container_header.classList.add("header-open");
 
@@ -215,10 +210,18 @@ export default {
       }
     },
     logout() {
-      this.$store
-        .dispatch("auth/logout", { token: this.$store.state.auth.token })
-        .then(() => {
-          //console.log(res)
+      const config = {
+        headers: {
+          Authorization: "Bearer " + this.$store.getters["auth/getToken"],
+        },
+      };
+
+      this.$axios
+        .post("logout", config)
+        .then((res) => {
+          console.log(res);
+
+          this.$store.dispatch("auth/logout");
 
           this.$store.dispatch("app/setActiveTab", {
             route: "/admin/profile",
@@ -231,7 +234,6 @@ export default {
           this.$router.push({ path: "/login" });
         })
         .catch((err) => {
-          this.$router.push({ path: "/login" });
           console.log(err);
         });
     },
@@ -241,7 +243,9 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.auth.user;
+      return this.$store.state.auth.user == null
+        ? { name: "", photo: null, email: "" }
+        : this.$store.state.auth.user;
     },
     items_group() {
       return this.$store.getters["app/getList"];
@@ -252,14 +256,14 @@ export default {
     active_tab_child() {
       return this.$store.getters["app/getActiveTabChild"];
     },
-    drawer: {
+    /*drawer: {
       get() {
         return this.$store.getters["app/getDrawer"];
       },
       set(val) {
         return val;
       },
-    },
+    },*/
   },
 };
 </script>

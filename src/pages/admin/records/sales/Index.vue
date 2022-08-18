@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12">
       <v-row>
         <v-col>
           <p class="font-weight-bold text-h5 my-0">Ventas por producto</p>
         </v-col>
       </v-row>
 
-      <v-card-text class="px-0">
+      <v-card-text class="px-0 d-flex">
         <v-btn
           color="primary"
           class="rounded-0 text-normal caption"
@@ -67,6 +67,14 @@
           </template>
           <span class="text-caption">Generar comprobante</span>
         </v-tooltip>
+
+        <v-spacer></v-spacer>
+        <v-btn
+          class="text-normal text-caption white--text"
+          color="green darken-4"
+          @click.prevent="generateExcel()"
+          ><v-icon left>mdi-microsoft-excel</v-icon>Exportar a Excel</v-btn
+        >
       </v-card-text>
 
       <v-card-text class="white px-0">
@@ -154,62 +162,89 @@
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  class="mr-1"
-                  small
-                  @click.prevent="ticket(item)"
-                  color="success"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-ticket
-                </v-icon>
-              </template>
-              <span class="text-caption">Boleta</span>
-            </v-tooltip>
+            <div class="d-flex">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    class="mr-1"
+                    small
+                    @click.prevent="ticket(item)"
+                    color="success"
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="item.invoice == null"
+                  >
+                    mdi-ticket
+                  </v-icon>
+                </template>
+                <span class="text-caption">Boleta</span>
+              </v-tooltip>
 
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  class="mr-1"
-                  small
-                  @click.prevent="invoice(item)"
-                  color="primary"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-receipt-text-check
-                </v-icon>
-              </template>
-              <span class="text-caption">Factura</span>
-            </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    class="mr-1"
+                    small
+                    @click.prevent="invoice(item)"
+                    color="primary"
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="item.invoice == null"
+                  >
+                    mdi-receipt-text-check
+                  </v-icon>
+                </template>
+                <span class="text-caption">Factura</span>
+              </v-tooltip>
 
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  class="mr-1"
-                  small
-                  @click.prevent="comprobante(item)"
-                  color="black"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-bookmark-check
-                </v-icon>
-              </template>
-              <span class="text-caption">Comprobante</span>
-            </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    class="mr-1"
+                    small
+                    @click.prevent="comprobante(item)"
+                    color="black"
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="item.invoice == null"
+                  >
+                    mdi-bookmark-check
+                  </v-icon>
+                </template>
+                <span class="text-caption">Comprobante</span>
+              </v-tooltip>
 
-            <v-icon class="ml-2" small @click.prevent="del(item)" color="error">
-              mdi-delete
-            </v-icon>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    color="black white--text"
+                    class="mr-1"
+                    small
+                    @click.prevent="generateCopy(item)"
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="item.invoice != null"
+                  >
+                    mdi-content-copy
+                  </v-icon>
+                </template>
+                <span class="text-caption">Generar copia</span>
+              </v-tooltip>
+              <v-spacer></v-spacer>
+              <v-icon
+                class="ml-2"
+                small
+                @click.prevent="del(item)"
+                color="error"
+              >
+                mdi-delete
+              </v-icon>
+            </div>
           </template>
         </v-data-table>
       </v-card-text>
     </v-container>
-
+    <DateExcel ref="date_excel"></DateExcel>
     <VentaForm ref="venta_form"></VentaForm>
     <Confirm ref="confirm"></Confirm>
     <Loading ref="loading"></Loading>
@@ -221,6 +256,7 @@ import VentaForm from "@/components/global/dialogs/VentaForm.vue";
 import Loading from "@/components/global/Loading.vue";
 import Confirm from "@/components/global/dialogs/Confirm.vue";
 import Vue from "vue";
+import DateExcel from "@/components/global/dialogs/DateExcel.vue";
 
 export default {
   name: "CirculosRecordsSalesIndex",
@@ -246,7 +282,7 @@ export default {
           width: "5%",
         },*/
         {
-          text: "updated_at",
+          text: "Fecha actualización",
           value: "updated_at",
           align: " d-none",
         },
@@ -269,7 +305,12 @@ export default {
           align: "left",
           value: "client_name",
         },
-        { text: "DNI o RUC", value: "client_dni", align: "left", width: "10%" },
+        {
+          text: "Descripción",
+          align: "left",
+          value: "client_description",
+        },
+        { text: "DNI o RUC", value: "client_dni", align: "left", width: "5%" },
         {
           text: "Producto",
           value: "product_name",
@@ -298,9 +339,9 @@ export default {
         {
           text: "Fecha actualización",
           value: "updated_at",
-          align: "",
+          width: "10%",
         },
-        { text: "Acciones", value: "actions", sortable: false, width: "10%" },
+        { text: "Acciones", value: "actions", sortable: false, width: "15%" },
       ],
       selected: [],
     };
@@ -432,37 +473,97 @@ export default {
         });
     },
     invoice(item) {
-      const list = [item.id];
-      this.generateDocument(list, "invoice");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar factura electrónica",
+          "¿Seguro que quiere generar una factura para la fila seleccionada?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [item.id];
+            self.generateDocument(list, "invoice");
+          }
+        });
     },
     ticket(item) {
-      const list = [item.id];
-      this.generateDocument(list, "ticket");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar boleta electrónica",
+          "¿Seguro que quiere generar una boleta para la fila seleccionada?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [item.id];
+            self.generateDocument(list, "ticket");
+          }
+        });
     },
     comprobante(item) {
-      const list = [item.id];
-      this.generateDocument(list, "comprobante");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar comprobante electrónico",
+          "¿Seguro que quiere generar un comprobante para la fila seleccionada?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [item.id];
+            self.generateDocument(list, "comprobante");
+          }
+        });
     },
     generateTicket() {
-      const list = [];
-      this.selected.forEach(function (item) {
-        list.push(item.id);
-      });
-      this.generateDocument(list, "ticket");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar boleta electrónica",
+          "¿Seguro que quiere generar una boleta para las filas seleccionadas?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [];
+            self.selected.forEach(function (item) {
+              list.push(item.id);
+            });
+            self.generateDocument(list, "ticket");
+          }
+        });
     },
     generateInvoice() {
-      const list = [];
-      this.selected.forEach(function (item) {
-        list.push(item.id);
-      });
-      this.generateDocument(list, "invoice");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar factura electrónica",
+          "¿Seguro que quiere generar una factura para las filas seleccionadas?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [];
+            self.selected.forEach(function (item) {
+              list.push(item.id);
+            });
+            self.generateDocument(list, "invoice");
+          }
+        });
     },
     generateComprobante() {
-      const list = [];
-      this.selected.forEach(function (item) {
-        list.push(item.id);
-      });
-      this.generateDocument(list, "comprobante");
+      const self = this;
+      this.$refs.confirm
+        .open(
+          "Generar comprobante electrónico",
+          "¿Seguro que quiere generar un comprobante para las filas seleccionadas?"
+        )
+        .then((res) => {
+          if (res) {
+            const list = [];
+            self.selected.forEach(function (item) {
+              list.push(item.id);
+            });
+            self.generateDocument(list, "comprobante");
+          }
+        });
     },
     generateDocument(list_ids, type) {
       this.$refs.loading.show();
@@ -487,7 +588,11 @@ export default {
           });
           let link = document.createElement("a");
           link.href = window.URL.createObjectURL(blob);
-          link.download = this.enterprise.name + ".pdf";
+          const date = new Date();
+          const d_string = date.toDateString();
+          const [date_string] = d_string.split("T");
+
+          link.download = date_string + ".pdf";
           link.click();
           this.$refs.loading.hide();
 
@@ -496,13 +601,56 @@ export default {
         })
         .catch((err) => {
           this.$refs.loading.hide();
+         console.log(err)
           if (err.code == "ERR_BAD_REQUEST") {
             if (err.response.status == 422) {
-              Vue.$toast.error(
-                "No puede elegir elementos que ya pertenecen a otro documento"
-              );
+              Vue.$toast.error("Algún elemento pertenece a otro documento");
+            } else if (err.response.status == 404) {
+              Vue.$toast.error("Configure el logotipo de su empresa");
+            } else if (err.response.status == 401) {
+              Vue.$toast.error("Algún elemento pertenece a otro documento");
+            } else if (err.response.status == 400) {
+              Vue.$toast.error("Debe de elegir al menos una fila");
             }
           }
+        });
+    },
+    generateCopy(item) {
+      this.$refs.loading.show();
+      const data = new FormData();
+      data.append("id", item.id);
+      data.append("user_id", this.$store.getters["auth/getUserId"]);
+      data.append("concept", "product");
+      const config = {
+        headers: {
+          Authorization: "Bearer " + this.$store.getters["auth/getToken"],
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        responseType: "arraybuffer",
+      };
+
+      this.$axios
+        .post("generate/copy/invoice/ticket", data, config)
+        .then((res) => {
+          let blob = new Blob([res.data], {
+            type: "application/pdf",
+          });
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          const date = new Date();
+          const d_string = date.toLocaleDateString("en-ES");
+          const [date_string] = d_string.split("T");
+
+          link.download = date_string + ".pdf";
+          link.click();
+          this.$refs.loading.hide();
+
+          this.selected = [];
+          this.getData();
+        })
+        .catch((err) => {
+          this.$refs.loading.hide();
+          console.log(err);
         });
     },
     formatDate(date) {
@@ -538,7 +686,16 @@ export default {
           }
         });
     },
-   
+    generateExcel() {
+      this.$refs.date_excel
+        .open("Elija un rango de fechas", this.sales, "products")
+        .then((res) => {
+          if (res) {
+            console.log("excel download");
+          }
+        });
+    },
+
     openAmount() {},
     closeAmount() {},
     cancelAmount() {},
@@ -547,7 +704,7 @@ export default {
     closeStatus() {},
     cancelStatus() {},
   },
-  components: { VentaForm, Loading, Confirm },
+  components: { VentaForm, Loading, Confirm, DateExcel },
 };
 </script>
 

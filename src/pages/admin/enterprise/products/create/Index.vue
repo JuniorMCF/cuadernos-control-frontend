@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12 ">
       <v-row>
         <v-col>
           <p class="font-weight-bold text-h5 my-0">Tus productos</p>

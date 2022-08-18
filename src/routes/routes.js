@@ -3,9 +3,9 @@
 const routes = [
 
 
-    { path: '*',component: () => import('../pages/notfound/404.vue') },
+    { path: '*', component: () => import('../pages/notfound/404.vue') },
 
-       /**publics */
+    /**publics */
 
     {
         path: '/',
@@ -25,7 +25,7 @@ const routes = [
     },
 
 
- 
+
     {
         path: '/admin',
         component: () => import('../pages/admin/Index.vue'),
@@ -63,31 +63,31 @@ const routes = [
             {
                 path: "clients",
                 name: "clients",
-                component: () => import('../pages/admin/enterprise/clients/create/Index.vue')
+                component: () => import('../pages/admin/enterprise/clients/create/Index.vue'),
             },
             {
                 path: "clients/:id/edit",
                 name: "clients_edit",
-                component: () => import('../pages/admin/enterprise/clients/edit/Index.vue')
+                component: () => import('../pages/admin/enterprise/clients/edit/Index.vue'),
             },
 
 
             {
                 path: "sales",
                 name: "sales",
-                component: () => import('../pages/admin/records/sales/Index.vue')
+                component: () => import('../pages/admin/records/sales/Index.vue'),
             },
             {
                 path: "pensions",
                 name: "pensions",
-                component: () => import('../pages/admin/records/pensions/Index.vue')
+                component: () => import('../pages/admin/records/pensions/Index.vue'),
             },
 
 
             {
                 path: "about-sales",
                 name: "about-sales",
-                component: () => import('../pages/admin/statistics/about_sales/Index.vue')
+                component: () => import('../pages/admin/statistics/about_sales/Index.vue'),
             },
 
         ],

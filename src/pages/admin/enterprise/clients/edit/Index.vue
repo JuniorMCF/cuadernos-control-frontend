@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12">
       <v-row>
         <v-col class="pa-0">
           <v-btn
@@ -31,13 +31,23 @@
             hide-details
           />
         </v-col>
-        <v-col class="col-12 col-md-6 col-lg-4">
+        <!--<v-col class="col-12 col-md-6 col-lg-4">
           <v-text-field
             dense
             outlined
             label="Apellidos"
             :value="client.last_name == null ? '' : client.last_name"
             v-model="client.last_name"
+            hide-details
+          />
+        </v-col>-->
+        <v-col class="col-12 col-md-6 col-lg-4">
+          <v-text-field
+            dense
+            outlined
+            label="Descripción del cliente"
+            :value="client.description == null ? '' : client.description"
+            v-model="client.description"
             hide-details
           />
         </v-col>
@@ -57,7 +67,9 @@
             dense
             outlined
             label="Celular 1"
-            :value="client.phone_number_one == null ? '' : client.phone_number_one"
+            :value="
+              client.phone_number_one == null ? '' : client.phone_number_one
+            "
             v-model="client.phone_number_one"
             hide-details
           />
@@ -67,7 +79,9 @@
             dense
             outlined
             label="Celular 2"
-            :value="client.phone_number_two == null ? '' : client.phone_number_two"
+            :value="
+              client.phone_number_two == null ? '' : client.phone_number_two
+            "
             v-model="client.phone_number_two"
             hide-details
           />
@@ -119,9 +133,7 @@ export default {
         name: "",
         symbol: "",
       },
-      client: {
-
-      },
+      client: {},
     };
   },
   mounted() {
@@ -140,7 +152,6 @@ export default {
         .then((res) => {
           if (res.data.success == true) {
             this.client = res.data.data;
-         
           }
           this.$refs.loading.hide();
         })
@@ -155,31 +166,49 @@ export default {
       const data = new FormData();
 
       data.append("id", this.client.id);
-      data.append("first_name", this.client.first_name == null ? '' : this.client.first_name);
-      data.append("last_name", this.client.last_name == null ? '' : this.client.last_name);
-      data.append("contact_email", this.client.contact_email == null ? '' : this.client.contact_email);
-      data.append("phone_number_one", this.client.phone_number_one == null ? '' : this.client.phone_number_one);
-      data.append("phone_number_two", this.client.phone_number_two == null ? '' : this.client.phone_number_two);
-      data.append("dni", this.client.dni == null ? '' : this.client.dni);
+      data.append(
+        "first_name",
+        this.client.first_name == null ? "" : this.client.first_name
+      );
+      /*data.append(
+        "last_name",
+        this.client.last_name == null ? "" : this.client.last_name
+      );*/
+      data.append(
+        "description",
+        this.client.description == null ? "" : this.client.description
+      );
+      data.append(
+        "contact_email",
+        this.client.contact_email == null ? "" : this.client.contact_email
+      );
+      data.append(
+        "phone_number_one",
+        this.client.phone_number_one == null ? "" : this.client.phone_number_one
+      );
+      data.append(
+        "phone_number_two",
+        this.client.phone_number_two == null ? "" : this.client.phone_number_two
+      );
+      data.append("dni", this.client.dni == null ? "" : this.client.dni);
 
       this.$axios
         .post("client/edit", data, this.config)
         .then((res) => {
-         
           if (res.data.success === true) {
             Vue.$toast.success("Cliente actualizado");
-             this.getData()
-          }else{
+            this.getData();
+          } else {
             /**show errors */
-                const elements = res.data.message;
-                const errors = [];
-                for (let element in elements) {
-                if (elements[element] != null && elements[element] != undefined) {
-                    errors.push(elements[element][0]);
-                }
-                }
+            const elements = res.data.message;
+            const errors = [];
+            for (let element in elements) {
+              if (elements[element] != null && elements[element] != undefined) {
+                errors.push(elements[element][0]);
+              }
+            }
 
-                Vue.$toast.error("" + errors.join("<br>"), {});
+            Vue.$toast.error("" + errors.join("<br>"), {});
           }
           this.$refs.loading.hide();
         })

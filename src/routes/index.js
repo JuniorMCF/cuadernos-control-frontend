@@ -17,9 +17,9 @@ let router = new Router(
 router.beforeEach((to, from, next) => {
     
     if(to.fullPath == "/login"){ //si el usuario esta loggeado y vuelve al login
-        if (store.getters['auth/isAuth'] == true) {
+        if (store.getters['auth/getToken'] != '') {
 
-            next({ name: 'profile' })
+            return next({ name: 'profile' })
         }
     }
 
@@ -27,13 +27,13 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters['auth/isAuth'] == true) {
 
-            next();
+            return  next();
 
         } else {
-            next({ name: 'login' })
+            return  next({ name: 'login' })
         }
     } else {
-        next()
+        return  next()
     }
 })
 

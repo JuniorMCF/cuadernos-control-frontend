@@ -34,8 +34,8 @@
             v-if="element.type == 'input'"
             :prefix="element.prefix"
             :type="element.type_input"
-             dense
-                outlined
+            dense
+            outlined
             v-model="element.model"
             :label="element.label"
             :hide-details="element.hint === '*obligatorio' ? false : true"
@@ -50,8 +50,8 @@
             :item-value="element.value"
             v-model="element.model"
             :label="element.label"
-           dense
-                outlined
+            dense
+            outlined
           />
         </form>
       </v-card-text>
@@ -151,7 +151,7 @@ export default {
 };
 </script>
 
-<style lang="scss" >
+<style lang="scss">
 .v-text-field__details {
   margin: 0 !important;
 }

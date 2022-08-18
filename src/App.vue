@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main>
+    <v-main class="grey lighten-3 pa-0 ma-0">
       <router-view :key="$route.fullPath"> </router-view>
     </v-main>
   </v-app>
@@ -24,4 +24,5 @@ export default {
   .text-normal{
     text-transform: none !important;
   }
+
 </style>

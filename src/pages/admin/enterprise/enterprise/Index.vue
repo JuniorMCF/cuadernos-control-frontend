@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="pa-12">
+    <v-container fluid class="pa-4 pa-md-12 ">
       <v-row>
         <v-col>
           <p class="font-weight-bold text-h5 my-0">
@@ -17,10 +17,18 @@
             v-model="coin"
             name="Moneda"
             item-value="id"
-            :item-text="(item) => item.symbol + '  ' + item.name"
+            item-text="symbol"
             label="Tu moneda"
             hide-details
+            @change="changeCoin"
+           
           >
+            <template v-slot:selection="{ item }">
+              {{ item.symbol + "  " + item.name }}
+            </template>
+            <template v-slot:item="{ item }">
+              {{ item.symbol + "  " + item.name }}
+            </template>
           </v-select>
         </v-col>
       </v-row>
@@ -62,7 +70,7 @@
             height="250"
             width="250"
             src="/images/profile.jpg"
-            class="elevation-1 justify-center align-center mx-auto"
+            class="elevation-1 justify-center align-center mx-auto mx-md-0"
           >
             <v-hover v-slot="{ hover }">
               <v-btn
@@ -242,13 +250,22 @@
             label="Color"
             hide-details
           >
-          <template slot='selection' slot-scope='{ item }'>
-                  <v-chip small v-bind:style="{ background: item }" class="white--text">{{item}}</v-chip>
-          </template>
-          <template slot='item' slot-scope='{ item }'>
-                 <v-chip small v-bind:style="{ background: item }" class="white--text">{{item}}</v-chip>
-          </template>
-          
+            <template slot="selection" slot-scope="{ item }">
+              <v-chip
+                small
+                v-bind:style="{ background: item }"
+                class="white--text"
+                >{{ item }}</v-chip
+              >
+            </template>
+            <template slot="item" slot-scope="{ item }">
+              <v-chip
+                small
+                v-bind:style="{ background: item }"
+                class="white--text"
+                >{{ item }}</v-chip
+              >
+            </template>
           </v-select>
         </v-col>
       </v-row>
@@ -390,7 +407,7 @@ export default {
             this.coins = res.data.data.coins;
 
             this.country = this.enterprise.country_id;
-            this.coin = this.enterprise.coin_id;
+            this.coin = parseInt(this.enterprise.coin_id);
             this.color = this.enterprise.color;
 
             //this.country = this.enterprise.countrys[0]
@@ -441,19 +458,59 @@ export default {
       const data = new FormData();
 
       data.append("id", this.enterprise.id);
-      data.append("name", this.enterprise.name);
-      data.append("address", this.enterprise.address);
-      data.append("ruc", this.enterprise.ruc);
-      data.append("country_id", this.country);
-      data.append("banco", this.enterprise.banco);
-      data.append("nro_cta", this.enterprise.nro_cta);
-      data.append("propietary", this.enterprise.propietary);
-      data.append("dpto", this.enterprise.dpto);
-      data.append("province", this.enterprise.province);
-      data.append("district", this.enterprise.district);
-      data.append("phone_contact_one", this.enterprise.phone_contact_one);
-      data.append("phone_contact_two", this.enterprise.phone_contact_two);
-      data.append("email", this.enterprise.email);
+      data.append(
+        "name",
+        this.enterprise.name == null ? "" : this.enterprise.name
+      );
+      data.append(
+        "address",
+        this.enterprise.address == null ? "" : this.enterprise.address
+      );
+      data.append(
+        "ruc",
+        this.enterprise.ruc == null ? "" : this.enterprise.ruc
+      );
+      //data.append("country_id", this.country);
+      data.append(
+        "banco",
+        this.enterprise.banco == null ? "" : this.enterprise.banco
+      );
+      data.append(
+        "nro_cta",
+        this.enterprise.nro_cta == null ? "" : this.enterprise.nro_cta
+      );
+      data.append(
+        "propietary",
+        this.enterprise.propietary == null ? "" : this.enterprise.propietary
+      );
+      data.append(
+        "dpto",
+        this.enterprise.dpto == null ? "" : this.enterprise.dpto
+      );
+      data.append(
+        "province",
+        this.enterprise.province == null ? "" : this.enterprise.province
+      );
+      data.append(
+        "district",
+        this.enterprise.district == null ? "" : this.enterprise.district
+      );
+      data.append(
+        "phone_contact_one",
+        this.enterprise.phone_contact_one == null
+          ? ""
+          : this.enterprise.phone_contact_one
+      );
+      data.append(
+        "phone_contact_two",
+        this.enterprise.phone_contact_two == null
+          ? ""
+          : this.enterprise.phone_contact_two
+      );
+      data.append(
+        "email",
+        this.enterprise.email == null ? "" : this.enterprise.email
+      );
       data.append("color", this.color);
       data.append("coin_id", this.coin);
 
@@ -464,13 +521,18 @@ export default {
 
           if (success) {
             Vue.$toast.success(message);
+            this.getData();
           }
-          this.load = false
+          this.load = false;
         })
         .catch((err) => {
-          this.load = false
+          this.load = false;
           console.log(err);
         });
+    },
+    changeCoin(coin) {
+      console.log(coin)
+      this.coin = parseInt(coin);
     },
 
     getPathImage(url) {
